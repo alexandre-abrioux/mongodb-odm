@@ -6,7 +6,8 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Jean85\PrettyVersions;
+use MongoDB\Client;
 
 $file = __DIR__ . '/../../vendor/autoload.php';
 
@@ -18,13 +19,25 @@ $loader = require_once $file;
 $loader->add('Documents', __DIR__);
 AnnotationRegistry::registerLoader([$loader, 'loadClass']);
 
+$client = new Client(
+    'mongodb://mongo:27017',
+    [],
+    [
+        'typeMap' => DocumentManager::CLIENT_TYPEMAP,
+        'driver' => [
+            'name' => 'doctrine-odm',
+            'version' => PrettyVersions::getVersion('doctrine/mongodb-odm')->getPrettyVersion(),
+        ],
+    ]
+);
+
 $config = new Configuration();
 $config->setProxyDir(__DIR__ . '/Proxies');
 $config->setProxyNamespace('Proxies');
 $config->setHydratorDir(__DIR__ . '/Hydrators');
 $config->setHydratorNamespace('Hydrators');
 $config->setDefaultDB('doctrine_odm_sandbox');
-$config->setMetadataCache(new ApcuAdapter());
+//$config->setMetadataCache(new ApcuAdapter());
 $config->setMetadataDriverImpl(AnnotationDriver::create(__DIR__ . '/Documents'));
 
-$dm = DocumentManager::create(null, $config);
+$dm = DocumentManager::create($client, $config);
