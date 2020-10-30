@@ -1,0 +1,47 @@
+version: '3'
+
+networks:
+  wan:
+  back:
+    internal: true
+  reverse-proxy-dev:
+    external: true
+    name: reverse-proxy-dev
+
+services:
+
+  php:
+    image: thecodingmachine/php:7.4-v3-cli
+    container_name: ${COMPOSE_APP_NAME}_php
+    environment:
+      PHP_EXTENSION_MONGODB: 1
+      PHP_EXTENSION_BCMATH: 1
+    command: tail -f /dev/null
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    networks:
+      - wan
+      - back
+
+  mongo:
+    image: mongo
+    container_name: ${COMPOSE_APP_NAME}_mongo
+    networks:
+      - back
+
+  mongo-express:
+    image: mongo-express
+    container_name: ${COMPOSE_APP_NAME}_mongo-express
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+    depends_on:
+      - mongo
+    networks:
+      - back
+      - reverse-proxy-dev
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:mongodb.webdev"
+      - "traefik.docker.network=reverse-proxy-dev"
+      - "traefik.port=8081"

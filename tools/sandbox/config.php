@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\MongoDB\Connection;
 use Doctrine\ODM\MongoDB\Configuration;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
+use Jean85\PrettyVersions;
+use MongoDB\Client;
 
 $file = __DIR__ . '/../../vendor/autoload.php';
 
@@ -18,7 +19,17 @@ $loader = require_once $file;
 $loader->add('Documents', __DIR__);
 AnnotationRegistry::registerLoader([$loader, 'loadClass']);
 
-$connection = new Connection();
+$client = new Client(
+    'mongodb://mongo:27017',
+    [],
+    [
+        'typeMap' => DocumentManager::CLIENT_TYPEMAP,
+        'driver' => [
+            'name' => 'doctrine-odm',
+            'version' => PrettyVersions::getVersion('doctrine/mongodb-odm')->getPrettyVersion(),
+        ],
+    ]
+);
 
 $config = new Configuration();
 $config->setProxyDir(__DIR__ . '/Proxies');
@@ -30,4 +41,4 @@ $config->setDefaultDB('doctrine_odm_sandbox');
 // $config->setMetadataCacheImpl(new Doctrine\Common\Cache\ApcCache());
 $config->setMetadataDriverImpl(AnnotationDriver::create(__DIR__ . '/Documents'));
 
-$dm = DocumentManager::create($connection, $config);
+$dm = DocumentManager::create($client, $config);
