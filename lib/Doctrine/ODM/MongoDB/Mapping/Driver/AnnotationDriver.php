@@ -20,9 +20,12 @@ use function array_replace;
 use function assert;
 use function class_exists;
 use function constant;
+use function extension_loaded;
 use function get_class;
 use function interface_exists;
 use function is_array;
+use function is_string;
+use function json_decode;
 use function trigger_error;
 
 /**
@@ -128,14 +131,24 @@ class AnnotationDriver extends AbstractAnnotationDriver
         if (isset($documentAnnot->collection)) {
             $class->setCollection($documentAnnot->collection);
         }
-        if (isset($documentAnnot->validator)) {
-            $class->setValidator($documentAnnot->validator);
+        if (isset($documentAnnot->validationJsonSchema)) {
+            assert(is_string($documentAnnot->validationJsonSchema));
+            if (! extension_loaded('json')) {
+                throw MappingException::jsonExtensionMissing('validationJsonSchema');
+            }
+            $validationJsonSchema = json_decode($documentAnnot->validationJsonSchema, true);
+            if ($validationJsonSchema === false) {
+                throw MappingException::jsonSchemaValidationError($className, 'validationJsonSchema');
+            }
+            $class->setvalidationJsonSchema($validationJsonSchema);
         }
         if (isset($documentAnnot->validationAction)) {
-            $class->setValidationAction($documentAnnot->validationAction);
+            assert($documentAnnot->validationAction instanceof ODM\ValidationAction);
+            $class->setValidationAction($documentAnnot->validationAction->value);
         }
         if (isset($documentAnnot->validationLevel)) {
-            $class->setValidationLevel($documentAnnot->validationLevel);
+            assert($documentAnnot->validationLevel instanceof ODM\ValidationLevel);
+            $class->setValidationLevel($documentAnnot->validationLevel->value);
         }
         if (isset($documentAnnot->view)) {
             $class->setCollection($documentAnnot->view);

@@ -17,6 +17,7 @@ use function array_filter;
 use function array_merge;
 use function array_unique;
 use function assert;
+use function is_array;
 use function is_string;
 use function iterator_count;
 use function iterator_to_array;
@@ -339,9 +340,14 @@ final class SchemaManager
             throw new InvalidArgumentException('Cannot update validators for mapped super classes, embedded documents or aggregation result documents.');
         }
 
+        $validator = [];
+        if (is_array($class->getvalidationJsonSchema())) {
+            $validator['$jsonSchema'] = $class->getvalidationJsonSchema();
+        }
+
         $this->dm->getDocumentDatabase($class->name)->command([
             'collMod' => $class->collection,
-            'validator' => $class->getValidator(),
+            'validator' => $validator,
             'validationAction' => $class->getValidationAction(),
             'validationLevel' => $class->getValidationLevel(),
         ], $this->getWriteOptions($maxTimeMs, $writeConcern));
@@ -411,8 +417,8 @@ final class SchemaManager
             'max' => $class->getCollectionMax(),
         ];
 
-        if (! empty($class->getValidator())) {
-            $options['validator']        = $class->getValidator();
+        if (is_array($class->getvalidationJsonSchema())) {
+            $options['validator']        = ['$jsonSchema' => $class->getvalidationJsonSchema()];
             $options['validationAction'] = $class->getValidationAction();
             $options['validationLevel']  = $class->getValidationLevel();
         }

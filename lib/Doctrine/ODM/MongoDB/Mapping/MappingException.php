@@ -9,7 +9,6 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations\AbstractDocument;
 use Doctrine\Persistence\Mapping\MappingException as BaseMappingException;
 use ReflectionException;
 use ReflectionObject;
-use function implode;
 use function sprintf;
 
 /**
@@ -272,16 +271,13 @@ final class MappingException extends BaseMappingException
         return new self(sprintf('Root class "%s" for view "%s" could not be found.', $rootClass, $className));
     }
 
-    public static function validationWrongType(string $className, string $property, string $allowedType) : self
+    public static function jsonExtensionMissing(string $property) : self
     {
-        return new self(sprintf('"%s" document property "%s" should be of type "%s"', $className, $property, $allowedType));
+        return new self(sprintf('"%s" property requires the "json" PHP extension: please update your PHP configuration.', $property));
     }
 
-    public static function validationWrongValue(string $className, string $property, string $value, array $allowedValues) : self
+    public static function jsonSchemaValidationError(string $className, string $property) : self
     {
-        $allowedValues = implode('", "', $allowedValues);
-        $allowedValues = '"' . $allowedValues . '"';
-
-        return new self(sprintf('Wrong value "%s" for "%s" document property "%s", can only be one of [%s]', $value, $className, $property, $allowedValues));
+        return new self(sprintf('A JSON error occurred while parsing the "%s" property of the "%s" class.', $property, $className));
     }
 }

@@ -20,11 +20,13 @@ use function constant;
 use function count;
 use function current;
 use function explode;
+use function extension_loaded;
 use function implode;
 use function in_array;
 use function interface_exists;
 use function is_numeric;
 use function iterator_to_array;
+use function json_decode;
 use function libxml_clear_errors;
 use function libxml_get_errors;
 use function libxml_use_internal_errors;
@@ -179,6 +181,23 @@ class XmlDriver extends FileDriver
         }
         if (isset($xmlRoot->{'shard-key'})) {
             $this->setShardKey($class, $xmlRoot->{'shard-key'}[0]);
+        }
+        if (isset($xmlRoot->{'validation-json-schema'})) {
+            if (! extension_loaded('json')) {
+                throw MappingException::jsonExtensionMissing('validation-json-schema');
+            }
+            $validationJsonSchema = (string) $xmlRoot->{'validation-json-schema'};
+            $validationJsonSchema = json_decode($validationJsonSchema, true);
+            if ($validationJsonSchema === false) {
+                throw MappingException::jsonSchemaValidationError($className, 'validation-json-schema');
+            }
+            $class->setvalidationJsonSchema($validationJsonSchema);
+        }
+        if (isset($xmlRoot['validation-action'])) {
+            $class->setValidationAction((string) $xmlRoot['validation-action']);
+        }
+        if (isset($xmlRoot['validation-level'])) {
+            $class->setValidationLevel((string) $xmlRoot['validation-level']);
         }
         if (isset($xmlRoot['read-only']) && (string) $xmlRoot['read-only'] === 'true') {
             $class->markReadOnly();

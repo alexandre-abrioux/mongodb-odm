@@ -10,6 +10,7 @@ use Doctrine\ODM\MongoDB\Mapping\MappingException;
 use TestDocuments\AlsoLoadDocument;
 use TestDocuments\CustomIdGenerator;
 use TestDocuments\InvalidPartialFilterDocument;
+use TestDocuments\JsonSchemaValidatedDocument;
 use TestDocuments\UserCustomIdGenerator;
 use TestDocuments\UserNonStringOptions;
 
@@ -92,6 +93,23 @@ class XmlDriverTest extends AbstractDriverTest
             'also-load' => 'createdOn,creation_date',
             'alsoLoadFields' => ['createdOn', 'creation_date'],
         ], $classMetadata->fieldMappings['createdAt']);
+    }
+
+    public function testValidationMapping()
+    {
+        $classMetadata = new ClassMetadata(JsonSchemaValidatedDocument::class);
+        $this->driver->loadMetadataForClass($classMetadata->name, $classMetadata);
+        $this->assertEquals(ClassMetadata::VALIDATION_ACTION_WARN, $classMetadata->getValidationAction());
+        $this->assertEquals(ClassMetadata::VALIDATION_LEVEL_MODERATE, $classMetadata->getValidationLevel());
+        $this->assertEquals([
+            'required' => ['name'],
+            'properties' => [
+                'name' =>                      [
+                    'bsonType' => 'string',
+                    'description' => 'must be a string and is required',
+                ],
+            ],
+        ], $classMetadata->getvalidationJsonSchema());
     }
 }
 

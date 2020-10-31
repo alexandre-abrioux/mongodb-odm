@@ -123,7 +123,7 @@ use function trigger_error;
     public const REFERENCE_STORE_AS_REF            = 'ref';
 
     /**
-     * The types validationAction references
+     * The collection schema validationAction values
      *
      * @see https://docs.mongodb.com/manual/core/schema-validation/#accept-or-reject-invalid-documents
      */
@@ -131,7 +131,7 @@ use function trigger_error;
     public const VALIDATION_ACTION_WARN  = 'warn';
 
     /**
-     * The types validationLevel references
+     * The collection schema validationLevel values
      *
      * @see https://docs.mongodb.com/manual/core/schema-validation/#existing-documents
      */
@@ -291,6 +291,13 @@ use function trigger_error;
      * @var array
      */
     public $validator = [];
+
+    /**
+     * READ-ONLY: Allows users to specify a validation schema for the collection.
+     *
+     * @var array|null
+     */
+    public $validationJsonSchema;
 
     /**
      * READ-ONLY: Determines whether to error on invalid documents or just warn about the violations but allow invalid documents to be inserted.
@@ -1018,19 +1025,19 @@ use function trigger_error;
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getValidator() : array
+    public function getvalidationJsonSchema() : ?array
     {
-        return $this->validator;
+        return $this->validationJsonSchema;
     }
 
-    public function setValidator($validator) : void
+    /**
+     * @param array|null $validationJsonSchema
+     */
+    public function setvalidationJsonSchema(?array $validationJsonSchema) : void
     {
-        if (! is_array($validator)) {
-            throw MappingException::validationWrongType($this->name, 'validator', 'array');
-        }
-        $this->validator = $validator;
+        $this->validationJsonSchema = $validationJsonSchema;
     }
 
     public function getValidationAction() : string
@@ -1038,21 +1045,8 @@ use function trigger_error;
         return $this->validationAction;
     }
 
-    /**
-     * @throws MappingException
-     */
-    public function setValidationAction($validationAction) : void
+    public function setValidationAction(string $validationAction) : void
     {
-        if (! is_string($validationAction)) {
-            throw MappingException::validationWrongType($this->name, 'validationAction', 'string');
-        }
-        $allowedValues = [
-            self::VALIDATION_ACTION_ERROR,
-            self::VALIDATION_ACTION_WARN,
-        ];
-        if (! in_array($validationAction, $allowedValues, true)) {
-            throw MappingException::validationWrongValue($this->name, 'validationAction', $validationAction, $allowedValues);
-        }
         $this->validationAction = $validationAction;
     }
 
@@ -1061,22 +1055,8 @@ use function trigger_error;
         return $this->validationLevel;
     }
 
-    /**
-     * @throws MappingException
-     */
-    public function setValidationLevel($validationLevel) : void
+    public function setValidationLevel(string $validationLevel) : void
     {
-        if (! is_string($validationLevel)) {
-            throw MappingException::validationWrongType($this->name, 'validationLevel', 'string');
-        }
-        $allowedValues = [
-            self::VALIDATION_LEVEL_OFF,
-            self::VALIDATION_LEVEL_STRICT,
-            self::VALIDATION_LEVEL_MODERATE,
-        ];
-        if (! in_array($validationLevel, $allowedValues, true)) {
-            throw MappingException::validationWrongValue($this->name, 'validationLevel', $validationLevel, $allowedValues);
-        }
         $this->validationLevel = $validationLevel;
     }
 
@@ -2213,8 +2193,8 @@ use function trigger_error;
             $serialized[] = 'isReadOnly';
         }
 
-        if (! empty($this->validator)) {
-            $serialized[] = 'validator';
+        if (is_array($this->validationJsonSchema)) {
+                $serialized[] = 'validationJsonSchema';
             if ($this->validationAction !== self::VALIDATION_ACTION_ERROR) {
                 $serialized[] = 'validationAction';
             }

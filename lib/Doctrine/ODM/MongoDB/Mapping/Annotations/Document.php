@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Doctrine\ODM\MongoDB\Mapping\Annotations;
 
+use Doctrine\Common\Annotations\Annotation;
+use Doctrine\Common\Annotations\Annotation\Attribute;
+use Doctrine\Common\Annotations\Annotation\Attributes;
+
 /**
  * Identifies a class as a document that can be stored in the database
  *
  * @Annotation
+ * @Attributes({
+ *   @Attribute("validationJsonSchema", type = "string"),
+ *   @Attribute("validationAction", type = "Doctrine\ODM\MongoDB\Mapping\Annotations\ValidationAction"),
+ *   @Attribute("validationLevel",  type = "Doctrine\ODM\MongoDB\Mapping\Annotations\ValidationLevel"),
+ * })
  */
 final class Document extends AbstractDocument
 {
@@ -32,12 +41,12 @@ final class Document extends AbstractDocument
     /** @var string|int|null */
     public $writeConcern;
 
-    /** @var array|null */
-    public $validator;
-
     /** @var string|null */
+    public $validationJsonSchema;
+
+    /** @var ValidationAction|null */
     public $validationAction;
 
-    /** @var string|null */
+    /** @var ValidationLevel|null */
     public $validationLevel;
 }
