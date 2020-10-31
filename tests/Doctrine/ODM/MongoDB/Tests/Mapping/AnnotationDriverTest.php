@@ -250,6 +250,13 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
 
         return new AnnotationDriver($reader);
     }
+
+    public function testWrongValueForValidationJsonSchemaShouldThrowException()
+    {
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('A JSON error occurred while parsing the "validationJsonSchema" property of the "Doctrine\ODM\MongoDB\Tests\Mapping\WrongValueForValidationJsonSchema" class');
+        $this->dm->getClassMetadata(WrongValueForValidationJsonSchema::class);
+    }
 }
 
 /** @ODM\Document */
@@ -309,6 +316,13 @@ class AnnotationDriverTestWriteConcernMajority
  * @ODM\Document(writeConcern=0)
  */
 class AnnotationDriverTestWriteConcernUnacknowledged
+{
+    /** @ODM\Id */
+    public $id;
+}
+
+/** @ODM\Document(validationJsonSchema="wrong") */
+class WrongValueForValidationJsonSchema
 {
     /** @ODM\Id */
     public $id;

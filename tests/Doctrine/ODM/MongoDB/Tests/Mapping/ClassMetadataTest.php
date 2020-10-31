@@ -797,19 +797,10 @@ class ClassMetadataTest extends BaseTest
         $cm->mapField(['type' => 'string', 'fieldName' => 'contentType']);
     }
 
-    public function testDefaultValueForValidator()
+    public function testDefaultValueForValidationJsonSchema()
     {
         $cm = new ClassMetadata('stdClass');
-        $this->assertIsArray($cm->getValidator());
-        $this->assertEmpty($cm->getValidator());
-    }
-
-    public function testWrongValidatorValueShouldThrowException()
-    {
-        $cm = new ClassMetadata('stdClass');
-        $this->expectException(MappingException::class);
-        $this->expectExceptionMessage('"stdClass" document property "validator" should be of type "array"');
-        $cm->setValidator('wrong');
+        $this->assertNull($cm->getvalidationJsonSchema());
     }
 
     public function testDefaultValueForValidationAction()
@@ -818,32 +809,10 @@ class ClassMetadataTest extends BaseTest
         $this->assertEquals(ClassMetadata::VALIDATION_ACTION_ERROR, $cm->getValidationAction());
     }
 
-    public function testWrongValidationActionValueShouldThrowException()
-    {
-        $cm = new ClassMetadata('stdClass');
-        $this->expectException(MappingException::class);
-        $this->expectExceptionMessage('"stdClass" document property "validationAction" should be of type "string"');
-        $cm->setValidationAction([]);
-        $this->expectException(MappingException::class);
-        $this->expectExceptionMessage('Wrong value "wrong" for "stdClass" document property "validationAction", can only be one of ["error", "warn"]');
-        $cm->setValidationAction('wrong');
-    }
-
     public function testDefaultValueForValidationLevel()
     {
         $cm = new ClassMetadata('stdClass');
         $this->assertEquals(ClassMetadata::VALIDATION_LEVEL_STRICT, $cm->getValidationLevel());
-    }
-
-    public function testWrongValidationLevelValueShouldThrowException()
-    {
-        $cm = new ClassMetadata('stdClass');
-        $this->expectException(MappingException::class);
-        $this->expectExceptionMessage('"stdClass" document property "validationLevel" should be of type "string"');
-        $cm->setValidationLevel([]);
-        $this->expectException(MappingException::class);
-        $this->expectExceptionMessage('Wrong value "wrong" for "stdClass" document property "validationLevel", can only be one of ["off", "strict", "moderate"]');
-        $cm->setValidationLevel('wrong');
     }
 }
 

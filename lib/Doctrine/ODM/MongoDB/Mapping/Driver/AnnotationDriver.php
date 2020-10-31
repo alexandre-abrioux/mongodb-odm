@@ -137,7 +137,7 @@ class AnnotationDriver extends AbstractAnnotationDriver
                 throw MappingException::jsonExtensionMissing('validationJsonSchema');
             }
             $validationJsonSchema = json_decode($documentAnnot->validationJsonSchema, true);
-            if ($validationJsonSchema === false) {
+            if ($validationJsonSchema === null) {
                 throw MappingException::jsonSchemaValidationError($className, 'validationJsonSchema');
             }
             $class->setvalidationJsonSchema($validationJsonSchema);

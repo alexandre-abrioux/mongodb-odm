@@ -286,13 +286,6 @@ use function trigger_error;
     public $shardKey = [];
 
     /**
-     * READ-ONLY: Allows users to specify validation rules or expressions for the collection.
-     *
-     * @var array
-     */
-    public $validator = [];
-
-    /**
      * READ-ONLY: Allows users to specify a validation schema for the collection.
      *
      * @var array|null
