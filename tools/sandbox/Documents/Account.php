@@ -6,7 +6,17 @@ namespace Documents;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 
-/** @ODM\Document(collection="accounts") */
+/** @ODM\Document(collection="accounts", validator={
+ *     "$jsonSchema": {
+ *         "required": {"name"},
+ *         "properties": {
+ *             "name": {
+ *                 "bsonType": "string",
+ *                 "description": "must be a string and is required"
+ *             }
+ *         }
+ *     }
+ * }) */
 class Account
 {
     /** @ODM\Id */
