@@ -19,6 +19,11 @@ class DatabasesTest extends BaseTest
         $this->assertEquals('test_default', $this->dm->getDocumentDatabase(DefaultDatabaseTest::class)->getDatabaseName());
     }
 
+    public function testDatabaseVersion()
+    {
+        $this->assertRegExp('#^\d\.\d\.\d$#', $this->dm->getSchemaManager()->getDocumentDatabaseVersion(DefaultDatabaseTest::class));
+    }
+
     protected function getConfiguration()
     {
         $config = parent::getConfiguration();

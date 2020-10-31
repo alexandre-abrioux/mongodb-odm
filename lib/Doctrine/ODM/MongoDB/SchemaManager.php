@@ -22,6 +22,7 @@ use function iterator_count;
 use function iterator_to_array;
 use function ksort;
 use function sprintf;
+use function version_compare;
 
 final class SchemaManager
 {
@@ -296,6 +297,57 @@ final class SchemaManager
     }
 
     /**
+     * Returns the MongoDB Database version for the document class.
+     */
+    public function getDocumentDatabaseVersion(string $documentName, ?int $maxTimeMs = null, ?WriteConcern $writeConcern = null) : string
+    {
+        $class = $this->dm->getClassMetadata($documentName);
+
+        return $this->dm->getDocumentDatabase($class->name)
+            ->command(['buildInfo' => 1], $this->getWriteOptions($maxTimeMs, $writeConcern))
+            ->toArray()[0]['version'];
+    }
+
+    /**
+     * Ensure collection validators are up to date for all mapped document classes.
+     */
+    public function updateValidators(?int $maxTimeMs = null, ?WriteConcern $writeConcern = null) : void
+    {
+        foreach ($this->metadataFactory->getAllMetadata() as $class) {
+            assert($class instanceof ClassMetadata);
+            if ($class->isMappedSuperclass || $class->isEmbeddedDocument || $class->isQueryResultDocument || $class->isView()) {
+                continue;
+            }
+
+            $this->updateDocumentValidator($class->name, $maxTimeMs, $writeConcern);
+        }
+    }
+
+    /**
+     * Ensure collection validators are up to date for the mapped document class.
+     */
+    public function updateDocumentValidator(string $documentName, ?int $maxTimeMs = null, ?WriteConcern $writeConcern = null) : void
+    {
+        $dbVersion = $this->getDocumentDatabaseVersion($documentName, $maxTimeMs, $writeConcern);
+        if (version_compare($dbVersion, '3.2.0', '<')) {
+            // MongoDB cannot perform schema validation before version 3.2
+            return;
+        }
+
+        $class = $this->dm->getClassMetadata($documentName);
+        if ($class->isMappedSuperclass || $class->isEmbeddedDocument || $class->isQueryResultDocument || $class->isView()) {
+            throw new InvalidArgumentException('Cannot update validators for mapped super classes, embedded documents or aggregation result documents.');
+        }
+
+        $this->dm->getDocumentDatabase($class->name)->command([
+            'collMod' => $class->collection,
+            'validator' => $class->getValidator(),
+            'validationAction' => $class->getValidationAction(),
+            'validationLevel' => $class->getValidationLevel(),
+        ], $this->getWriteOptions($maxTimeMs, $writeConcern));
+    }
+
+    /**
      * Create all the mapped document collections in the metadata factory.
      */
     public function createCollections(?int $maxTimeMs = null, ?WriteConcern $writeConcern = null) : void
@@ -358,6 +410,12 @@ final class SchemaManager
             'size' => $class->getCollectionSize(),
             'max' => $class->getCollectionMax(),
         ];
+
+        if (! empty($class->getValidator())) {
+            $options['validator']        = $class->getValidator();
+            $options['validationAction'] = $class->getValidationAction();
+            $options['validationLevel']  = $class->getValidationLevel();
+        }
 
         $this->dm->getDocumentDatabase($documentName)->createCollection(
             $class->getCollection(),

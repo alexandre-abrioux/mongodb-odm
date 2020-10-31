@@ -31,4 +31,13 @@ final class Document extends AbstractDocument
 
     /** @var string|int|null */
     public $writeConcern;
+
+    /** @var array|null */
+    public $validator;
+
+    /** @var string|null */
+    public $validationAction;
+
+    /** @var string|null */
+    public $validationLevel;
 }

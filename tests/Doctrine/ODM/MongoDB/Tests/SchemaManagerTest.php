@@ -15,6 +15,7 @@ use Documents\CmsComment;
 use Documents\CmsProduct;
 use Documents\Comment;
 use Documents\File;
+use Documents\JsonSchemaValidated;
 use Documents\Sharded\ShardedOne;
 use Documents\Sharded\ShardedOneWithDifferentKey;
 use Documents\SimpleReferenceUser;
@@ -22,6 +23,7 @@ use Documents\UserName;
 use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\Database;
+use MongoDB\Driver\CursorInterface;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\GridFS\Bucket;
 use MongoDB\Model\IndexInfo;
@@ -366,6 +368,29 @@ class SchemaManagerTest extends BaseTest
     /**
      * @dataProvider getWriteOptions
      */
+    public function testUpdateValidators(array $expectedWriteOptions, ?int $maxTimeMs, ?WriteConcern $writeConcern)
+    {
+        $class    = $this->dm->getClassMetadata(CmsArticle::class);
+        $database = $this->documentDatabases[$this->getDatabaseName($class)];
+        $database
+            ->expects($this->at(0))
+            ->method('command')
+            ->with(['buildInfo' => 1], new ArraySubset($expectedWriteOptions));
+        $database
+            ->expects($this->at(1))
+            ->method('command')
+            ->with([
+                'collMod' => $class->collection,
+                'validator' => [],
+                'validationAction' => ClassMetadata::VALIDATION_ACTION_ERROR,
+                'validationLevel' => ClassMetadata::VALIDATION_LEVEL_STRICT,
+            ], new ArraySubset($expectedWriteOptions));
+        $this->schemaManager->updateDocumentValidator(CmsArticle::class, $maxTimeMs, $writeConcern);
+    }
+
+    /**
+     * @dataProvider getWriteOptions
+     */
     public function testCreateDocumentCollection(array $expectedWriteOptions, ?int $maxTimeMs, ?WriteConcern $writeConcern)
     {
         $cm                   = $this->dm->getClassMetadata(CmsArticle::class);
@@ -405,6 +430,38 @@ class SchemaManagerTest extends BaseTest
             ->with('fs.chunks', new ArraySubset($expectedWriteOptions));
 
         $this->schemaManager->createDocumentCollection(File::class, $maxTimeMs, $writeConcern);
+    }
+
+    /**
+     * @dataProvider getWriteOptions
+     */
+    public function testCreateDocumentCollectionWithValidator(array $expectedWriteOptions, ?int $maxTimeMs, ?WriteConcern $writeConcern)
+    {
+        $options  = [
+            'capped' => false,
+            'size' => null,
+            'max' => null,
+            'validator' => [
+                '$jsonSchema' => [
+                    'required' => ['name'],
+                    'properties' => [
+                        'name' =>                      [
+                            'bsonType' => 'string',
+                            'description' => 'must be a string and is required',
+                        ],
+                    ],
+                ],
+            ],
+            'validationAction' => ClassMetadata::VALIDATION_ACTION_WARN,
+            'validationLevel' => ClassMetadata::VALIDATION_LEVEL_MODERATE,
+        ];
+        $database = $this->documentDatabases[$this->getDatabaseName($this->dm->getClassMetadata(JsonSchemaValidated::class))];
+        $database
+            ->expects($this->once())
+            ->method('createCollection')
+            ->with('JsonSchemaValidated', new ArraySubset($options + $expectedWriteOptions));
+
+        $this->schemaManager->createDocumentCollection(JsonSchemaValidated::class, $maxTimeMs, $writeConcern);
     }
 
     /**
@@ -950,7 +1007,21 @@ class SchemaManagerTest extends BaseTest
         $db->method('selectGridFSBucket')->willReturnCallback(function (array $options) {
             return $this->documentBuckets[$options['bucketName']];
         });
+        $db->method('command')->willReturnCallback(function (array $options) {
+            return $this->getMockCursor(empty($options['buildInfo']) ? [] : [['version' => '4.0.0.']]);
+        });
 
         return $db;
+    }
+
+    /** @return CursorInterface|MockObject */
+    private function getMockCursor(array $return)
+    {
+        $cursor = $this->createMock(CursorInterface::class);
+        $cursor->method('toArray')->willReturnCallback(static function () use ($return) {
+                return $return;
+        });
+
+        return $cursor;
     }
 }

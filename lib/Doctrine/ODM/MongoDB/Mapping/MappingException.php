@@ -9,6 +9,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations\AbstractDocument;
 use Doctrine\Persistence\Mapping\MappingException as BaseMappingException;
 use ReflectionException;
 use ReflectionObject;
+use function implode;
 use function sprintf;
 
 /**
@@ -269,5 +270,18 @@ final class MappingException extends BaseMappingException
     public static function viewRootClassNotFound(string $className, string $rootClass) : self
     {
         return new self(sprintf('Root class "%s" for view "%s" could not be found.', $rootClass, $className));
+    }
+
+    public static function validationWrongType(string $className, string $property, string $allowedType) : self
+    {
+        return new self(sprintf('"%s" document property "%s" should be of type "%s"', $className, $property, $allowedType));
+    }
+
+    public static function validationWrongValue(string $className, string $property, string $value, array $allowedValues) : self
+    {
+        $allowedValues = implode('", "', $allowedValues);
+        $allowedValues = '"' . $allowedValues . '"';
+
+        return new self(sprintf('Wrong value "%s" for "%s" document property "%s", can only be one of [%s]', $value, $className, $property, $allowedValues));
     }
 }

@@ -122,6 +122,23 @@ use function trigger_error;
     public const REFERENCE_STORE_AS_DB_REF_WITH_DB = 'dbRefWithDb';
     public const REFERENCE_STORE_AS_REF            = 'ref';
 
+    /**
+     * The types validationAction references
+     *
+     * @see https://docs.mongodb.com/manual/core/schema-validation/#accept-or-reject-invalid-documents
+     */
+    public const VALIDATION_ACTION_ERROR = 'error';
+    public const VALIDATION_ACTION_WARN  = 'warn';
+
+    /**
+     * The types validationLevel references
+     *
+     * @see https://docs.mongodb.com/manual/core/schema-validation/#existing-documents
+     */
+    public const VALIDATION_LEVEL_OFF      = 'off';
+    public const VALIDATION_LEVEL_STRICT   = 'strict';
+    public const VALIDATION_LEVEL_MODERATE = 'moderate';
+
     /* The inheritance mapping types */
     /**
      * NONE means the class does not participate in an inheritance hierarchy
@@ -267,6 +284,27 @@ use function trigger_error;
      * @var array<string, array>
      */
     public $shardKey = [];
+
+    /**
+     * READ-ONLY: Allows users to specify validation rules or expressions for the collection.
+     *
+     * @var array
+     */
+    public $validator = [];
+
+    /**
+     * READ-ONLY: Determines whether to error on invalid documents or just warn about the violations but allow invalid documents to be inserted.
+     *
+     * @var string
+     */
+    public $validationAction = self::VALIDATION_ACTION_ERROR;
+
+    /**
+     * READ-ONLY: Determines how strictly MongoDB applies the validation rules to existing documents during an update.
+     *
+     * @var string
+     */
+    public $validationLevel = self::VALIDATION_LEVEL_STRICT;
 
     /**
      * READ-ONLY: The name of the document class.
@@ -977,6 +1015,69 @@ use function trigger_error;
     public function isSharded() : bool
     {
         return $this->shardKey !== [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getValidator() : array
+    {
+        return $this->validator;
+    }
+
+    public function setValidator($validator) : void
+    {
+        if (! is_array($validator)) {
+            throw MappingException::validationWrongType($this->name, 'validator', 'array');
+        }
+        $this->validator = $validator;
+    }
+
+    public function getValidationAction() : string
+    {
+        return $this->validationAction;
+    }
+
+    /**
+     * @throws MappingException
+     */
+    public function setValidationAction($validationAction) : void
+    {
+        if (! is_string($validationAction)) {
+            throw MappingException::validationWrongType($this->name, 'validationAction', 'string');
+        }
+        $allowedValues = [
+            self::VALIDATION_ACTION_ERROR,
+            self::VALIDATION_ACTION_WARN,
+        ];
+        if (! in_array($validationAction, $allowedValues, true)) {
+            throw MappingException::validationWrongValue($this->name, 'validationAction', $validationAction, $allowedValues);
+        }
+        $this->validationAction = $validationAction;
+    }
+
+    public function getValidationLevel() : string
+    {
+        return $this->validationLevel;
+    }
+
+    /**
+     * @throws MappingException
+     */
+    public function setValidationLevel($validationLevel) : void
+    {
+        if (! is_string($validationLevel)) {
+            throw MappingException::validationWrongType($this->name, 'validationLevel', 'string');
+        }
+        $allowedValues = [
+            self::VALIDATION_LEVEL_OFF,
+            self::VALIDATION_LEVEL_STRICT,
+            self::VALIDATION_LEVEL_MODERATE,
+        ];
+        if (! in_array($validationLevel, $allowedValues, true)) {
+            throw MappingException::validationWrongValue($this->name, 'validationLevel', $validationLevel, $allowedValues);
+        }
+        $this->validationLevel = $validationLevel;
     }
 
     /**
@@ -2110,6 +2211,16 @@ use function trigger_error;
 
         if ($this->isReadOnly) {
             $serialized[] = 'isReadOnly';
+        }
+
+        if (! empty($this->validator)) {
+            $serialized[] = 'validator';
+            if ($this->validationAction !== self::VALIDATION_ACTION_ERROR) {
+                $serialized[] = 'validationAction';
+            }
+            if ($this->validationLevel !== self::VALIDATION_LEVEL_STRICT) {
+                $serialized[] = 'validationLevel';
+            }
         }
 
         return $serialized;

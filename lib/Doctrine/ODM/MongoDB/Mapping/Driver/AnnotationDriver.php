@@ -128,6 +128,15 @@ class AnnotationDriver extends AbstractAnnotationDriver
         if (isset($documentAnnot->collection)) {
             $class->setCollection($documentAnnot->collection);
         }
+        if (isset($documentAnnot->validator)) {
+            $class->setValidator($documentAnnot->validator);
+        }
+        if (isset($documentAnnot->validationAction)) {
+            $class->setValidationAction($documentAnnot->validationAction);
+        }
+        if (isset($documentAnnot->validationLevel)) {
+            $class->setValidationLevel($documentAnnot->validationLevel);
+        }
         if (isset($documentAnnot->view)) {
             $class->setCollection($documentAnnot->view);
         }
