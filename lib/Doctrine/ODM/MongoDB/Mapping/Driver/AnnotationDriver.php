@@ -140,7 +140,7 @@ class AnnotationDriver extends AbstractAnnotationDriver
             if ($validationJsonSchema === null) {
                 throw MappingException::jsonSchemaValidationError($className, 'validationJsonSchema');
             }
-            $class->setvalidationJsonSchema($validationJsonSchema);
+            $class->setValidationJsonSchema($validationJsonSchema);
         }
         if (isset($documentAnnot->validationAction)) {
             assert($documentAnnot->validationAction instanceof ODM\ValidationAction);

@@ -1020,7 +1020,7 @@ use function trigger_error;
     /**
      * @return array|null
      */
-    public function getvalidationJsonSchema() : ?array
+    public function getValidationJsonSchema() : ?array
     {
         return $this->validationJsonSchema;
     }
@@ -1028,7 +1028,7 @@ use function trigger_error;
     /**
      * @param array|null $validationJsonSchema
      */
-    public function setvalidationJsonSchema(?array $validationJsonSchema) : void
+    public function setValidationJsonSchema(?array $validationJsonSchema) : void
     {
         $this->validationJsonSchema = $validationJsonSchema;
     }

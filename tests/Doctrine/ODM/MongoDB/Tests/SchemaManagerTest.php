@@ -493,7 +493,7 @@ class SchemaManagerTest extends BaseTest
         $database
             ->expects($this->once())
             ->method('createCollection')
-            ->with('Validation', new ArraySubset($options + $expectedWriteOptions));
+            ->with('JsonSchemaValidated', new ArraySubset($options + $expectedWriteOptions));
 
         $this->schemaManager->createDocumentCollection($cm->name, $maxTimeMs, $writeConcern);
     }

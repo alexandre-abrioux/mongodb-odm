@@ -800,7 +800,7 @@ class ClassMetadataTest extends BaseTest
     public function testDefaultValueForValidationJsonSchema()
     {
         $cm = new ClassMetadata('stdClass');
-        $this->assertNull($cm->getvalidationJsonSchema());
+        $this->assertNull($cm->getValidationJsonSchema());
     }
 
     public function testDefaultValueForValidationAction()

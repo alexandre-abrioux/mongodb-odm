@@ -191,7 +191,7 @@ class XmlDriver extends FileDriver
             if ($validationJsonSchema === null) {
                 throw MappingException::jsonSchemaValidationError($className, 'validation-json-schema');
             }
-            $class->setvalidationJsonSchema($validationJsonSchema);
+            $class->setValidationJsonSchema($validationJsonSchema);
         }
         if (isset($xmlRoot['validation-action'])) {
             $class->setValidationAction((string) $xmlRoot['validation-action']);

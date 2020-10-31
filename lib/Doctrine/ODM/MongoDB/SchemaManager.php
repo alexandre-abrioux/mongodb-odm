@@ -341,8 +341,8 @@ final class SchemaManager
         }
 
         $validator = [];
-        if (is_array($class->getvalidationJsonSchema())) {
-            $validator['$jsonSchema'] = $class->getvalidationJsonSchema();
+        if (is_array($class->getValidationJsonSchema())) {
+            $validator['$jsonSchema'] = $class->getValidationJsonSchema();
         }
 
         $this->dm->getDocumentDatabase($class->name)->command([
@@ -417,8 +417,8 @@ final class SchemaManager
             'max' => $class->getCollectionMax(),
         ];
 
-        if (is_array($class->getvalidationJsonSchema())) {
-            $options['validator']        = ['$jsonSchema' => $class->getvalidationJsonSchema()];
+        if (is_array($class->getValidationJsonSchema())) {
+            $options['validator']        = ['$jsonSchema' => $class->getValidationJsonSchema()];
             $options['validationAction'] = $class->getValidationAction();
             $options['validationLevel']  = $class->getValidationLevel();
         }

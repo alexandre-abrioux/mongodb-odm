@@ -109,7 +109,7 @@ class XmlDriverTest extends AbstractDriverTest
                     'description' => 'must be a string and is required',
                 ],
             ],
-        ], $classMetadata->getvalidationJsonSchema());
+        ], $classMetadata->getValidationJsonSchema());
     }
 }
 
