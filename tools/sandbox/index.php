@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Documents\Account;
-
 require_once __DIR__ . '/config.php';
 
 
