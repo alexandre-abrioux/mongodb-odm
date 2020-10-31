@@ -6,47 +6,34 @@ namespace Documents;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 
-/** @ODM\Document(collection="accounts", validator={
- *     "$jsonSchema": {
- *         "required": {"name"},
- *         "properties": {
- *             "name": {
- *                 "bsonType": "string",
- *                 "description": "must be a string and is required"
- *             }
- *         }
- *     }
- * }) */
+/**
+ * @ODM\Document(
+ *     collection="accounts",
+ *     validationJsonSchema="{
+            ""required"": [""name""],
+            ""properties"": {
+                ""name"": {
+                    ""bsonType"": ""string"",
+                    ""description"": ""must be a string and is required""
+                }
+            }
+        }"
+ * )
+ */
 class Account
 {
     /** @ODM\Id */
-    protected $id;
+    private $id;
 
     /** @ODM\Field(type="string") */
-    protected $name;
+    private $name;
 
-    public function __construct($name)
-    {
-        $this->name = $name;
-    }
+    /** @ODM\Field(type="string") */
+    private $phone;
 
-    public function getId()
-    {
-        return $this->id;
-    }
+    /** @ODM\Field(type="string") */
+    private $email;
 
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function __toString()
-    {
-        return (string) $this->name;
-    }
+    /** @ODM\Field(type="string") */
+    private $status;
 }

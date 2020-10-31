@@ -8,6 +8,6 @@ require_once __DIR__ . '/config.php';
 
 
 // Your code here...
-//$dm->getSchemaManager()->dropDatabases();
-//$dm->getSchemaManager()->createCollections();
-$dm->getSchemaManager()->updateValidators();
+$dm->getSchemaManager()->dropDatabases();
+$dm->getSchemaManager()->createCollections();
+//$dm->getSchemaManager()->updateValidators();
