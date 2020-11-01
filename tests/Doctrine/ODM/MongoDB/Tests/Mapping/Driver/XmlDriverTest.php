@@ -104,7 +104,7 @@ class XmlDriverTest extends AbstractDriverTest
         $this->assertEquals([
             'required' => ['name'],
             'properties' => [
-                'name' =>                      [
+                'name' => [
                     'bsonType' => 'string',
                     'description' => 'must be a string and is required',
                 ],

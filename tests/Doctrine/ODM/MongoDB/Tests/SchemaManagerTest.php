@@ -478,7 +478,7 @@ class SchemaManagerTest extends BaseTest
                 '$jsonSchema' => [
                     'required' => ['name'],
                     'properties' => [
-                        'name' =>                      [
+                        'name' => [
                             'bsonType' => 'string',
                             'description' => 'must be a string and is required',
                         ],
