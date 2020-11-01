@@ -13,7 +13,7 @@ class ValidationActionTest extends BaseTest
     public function testWrongValueForValidationActionShouldThrowException()
     {
         $this->expectException(AnnotationException::class);
-        $this->expectExceptionMessage('[Enum Error] Attribute "value" of @Doctrine\ODM\MongoDB\Mapping\Annotations\ValidationAction declared on class Doctrine\ODM\MongoDB\Tests\Mapping\Annotations\WrongValueForValidationAction accepts only [error, warn], but got wrong.');
+        $this->expectExceptionMessageMatches('#^\[Enum Error\] Attribute "value" of @Doctrine\\\\ODM\\\\MongoDB\\\\Mapping\\\\Annotations\\\\ValidationAction declared on class Doctrine\\\\ODM\\\\MongoDB\\\\Tests\\\\Mapping\\\\Annotations\\\\WrongValueForValidationAction accepts? only \[error, warn\], but got wrong\.$#');
         $this->dm->getClassMetadata(WrongValueForValidationAction::class);
     }
 }

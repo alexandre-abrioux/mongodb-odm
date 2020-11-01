@@ -59,11 +59,6 @@ class ValidationTest extends BaseTest
 /**
  * @ODM\Document(collection="JsonSchemaValidated")
  */
-class JsonSchemaValidatedUpdate
+class JsonSchemaValidatedUpdate extends JsonSchemaValidated
 {
-    /** @ODM\Id */
-    private $id;
-
-    /** @ODM\Field(type="string") */
-    private $name;
 }

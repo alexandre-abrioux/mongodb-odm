@@ -13,7 +13,7 @@ class ValidationLevelTest extends BaseTest
     public function testWrongValueForValidationLevelShouldThrowException()
     {
         $this->expectException(AnnotationException::class);
-        $this->expectExceptionMessage('[Enum Error] Attribute "value" of @Doctrine\ODM\MongoDB\Mapping\Annotations\ValidationLevel declared on class Doctrine\ODM\MongoDB\Tests\Mapping\Annotations\WrongValueForValidationLevel accepts only [off, strict, moderate], but got wrong.');
+        $this->expectExceptionMessageMatches('#^\[Enum Error\] Attribute "value" of @Doctrine\\\\ODM\\\\MongoDB\\\\Mapping\\\\Annotations\\\\ValidationLevel declared on class Doctrine\\\\ODM\\\\MongoDB\\\\Tests\\\\Mapping\\\\Annotations\\\\WrongValueForValidationLevel accepts? only \[off, strict, moderate\], but got wrong\.$#');
         $this->dm->getClassMetadata(WrongValueForValidationLevel::class);
     }
 }
