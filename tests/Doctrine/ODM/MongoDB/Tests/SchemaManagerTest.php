@@ -415,8 +415,8 @@ class SchemaManagerTest extends BaseTest
             ->with([
                 'collMod' => $class->collection,
                 'validator' => [],
-                'validationAction' => ClassMetadata::VALIDATION_ACTION_ERROR,
-                'validationLevel' => ClassMetadata::VALIDATION_LEVEL_STRICT,
+                'validationAction' => '',
+                'validationLevel' => '',
             ], new ArraySubset($expectedWriteOptions));
         $this->schemaManager->updateDocumentValidator($class->name, $maxTimeMs, $writeConcern);
     }
