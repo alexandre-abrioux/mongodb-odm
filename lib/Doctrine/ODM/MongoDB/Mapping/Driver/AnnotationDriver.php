@@ -11,6 +11,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 use Doctrine\ODM\MongoDB\Mapping\Annotations\AbstractIndex;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Mapping\MappingException;
+use Doctrine\ODM\MongoDB\Utility\EnvironmentHelper;
 use Doctrine\Persistence\Mapping\Driver\AnnotationDriver as AbstractAnnotationDriver;
 use ReflectionClass;
 use ReflectionMethod;
@@ -20,7 +21,6 @@ use function array_replace;
 use function assert;
 use function class_exists;
 use function constant;
-use function extension_loaded;
 use function get_class;
 use function interface_exists;
 use function is_array;
@@ -33,6 +33,20 @@ use function trigger_error;
  */
 class AnnotationDriver extends AbstractAnnotationDriver
 {
+    /** @var EnvironmentHelper */
+    private $environmentHelper;
+
+    public function __construct($reader, $paths = null)
+    {
+        parent::__construct($reader, $paths);
+        $this->environmentHelper = new EnvironmentHelper();
+    }
+
+    public function setEnvironmentHelper(EnvironmentHelper $environmentHelper) : void
+    {
+        $this->environmentHelper = $environmentHelper;
+    }
+
     public function isTransient($className)
     {
         $classAnnotations = $this->reader->getClassAnnotations(new ReflectionClass($className));
@@ -133,7 +147,7 @@ class AnnotationDriver extends AbstractAnnotationDriver
         }
         if (isset($documentAnnot->validationJsonSchema)) {
             assert(is_string($documentAnnot->validationJsonSchema));
-            if (! extension_loaded('json')) {
+            if (! $this->environmentHelper->isExtensionLoaded('json')) {
                 throw MappingException::jsonExtensionMissing('validationJsonSchema');
             }
             $validationJsonSchema = json_decode($documentAnnot->validationJsonSchema, true);

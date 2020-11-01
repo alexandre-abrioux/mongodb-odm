@@ -43,6 +43,8 @@ class ValidationTest extends BaseTest
         // Test updating the same collection, this time removing the validators and resetting to default options
         $cmUpdated = $this->dm->getClassMetadata(JsonSchemaValidatedUpdate::class);
         $this->dm->getSchemaManager()->updateDocumentValidator($cmUpdated->name);
+        // We expect the default values set by MongoDB
+        // See: https://docs.mongodb.com/manual/reference/command/collMod/#document-validation
         $expectedOptions = [
             'validationLevel' => ClassMetadata::VALIDATION_LEVEL_STRICT,
             'validationAction' => ClassMetadata::VALIDATION_ACTION_ERROR,

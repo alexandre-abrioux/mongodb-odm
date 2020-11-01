@@ -17,6 +17,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
 class ValidationAction
 {
     /**
+     * @var string
      * @Enum({
      *     \Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_ACTION_ERROR,
      *     \Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_ACTION_WARN,

@@ -7,6 +7,7 @@ namespace Doctrine\ODM\MongoDB\Mapping\Driver;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Mapping\MappingException;
 use Doctrine\ODM\MongoDB\Utility\CollectionHelper;
+use Doctrine\ODM\MongoDB\Utility\EnvironmentHelper;
 use Doctrine\Persistence\Mapping\Driver\FileDriver;
 use DOMDocument;
 use InvalidArgumentException;
@@ -20,7 +21,6 @@ use function constant;
 use function count;
 use function current;
 use function explode;
-use function extension_loaded;
 use function implode;
 use function in_array;
 use function interface_exists;
@@ -69,12 +69,21 @@ class XmlDriver extends FileDriver
         ],
     ];
 
+    /** @var EnvironmentHelper */
+    private $environmentHelper;
+
     /**
      * {@inheritDoc}
      */
     public function __construct($locator, $fileExtension = self::DEFAULT_FILE_EXTENSION)
     {
         parent::__construct($locator, $fileExtension);
+        $this->environmentHelper = new EnvironmentHelper();
+    }
+
+    public function setEnvironmentHelper(EnvironmentHelper $environmentHelper) : void
+    {
+        $this->environmentHelper = $environmentHelper;
     }
 
     /**
@@ -183,7 +192,7 @@ class XmlDriver extends FileDriver
             $this->setShardKey($class, $xmlRoot->{'shard-key'}[0]);
         }
         if (isset($xmlRoot->{'validation-json-schema'})) {
-            if (! extension_loaded('json')) {
+            if (! $this->environmentHelper->isExtensionLoaded('json')) {
                 throw MappingException::jsonExtensionMissing('validation-json-schema');
             }
             $validationJsonSchema = (string) $xmlRoot->{'validation-json-schema'};

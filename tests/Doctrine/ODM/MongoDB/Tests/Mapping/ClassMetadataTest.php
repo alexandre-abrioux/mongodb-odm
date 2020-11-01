@@ -806,13 +806,13 @@ class ClassMetadataTest extends BaseTest
     public function testDefaultValueForValidationAction()
     {
         $cm = new ClassMetadata('stdClass');
-        $this->assertEquals(ClassMetadata::VALIDATION_ACTION_ERROR, $cm->getValidationAction());
+        $this->assertEquals('', $cm->getValidationAction());
     }
 
     public function testDefaultValueForValidationLevel()
     {
         $cm = new ClassMetadata('stdClass');
-        $this->assertEquals(ClassMetadata::VALIDATION_LEVEL_STRICT, $cm->getValidationLevel());
+        $this->assertEquals('', $cm->getValidationLevel());
     }
 }
 

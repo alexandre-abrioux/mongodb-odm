@@ -9,7 +9,9 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver;
 use Doctrine\ODM\MongoDB\Mapping\MappingException;
+use Doctrine\ODM\MongoDB\Utility\EnvironmentHelper;
 use Documents\CmsUser;
+use Documents\JsonSchemaValidated;
 use function get_class;
 
 class AnnotationDriverTest extends AbstractMappingDriverTest
@@ -236,6 +238,29 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         ];
     }
 
+    public function testWrongValueForValidationJsonSchemaShouldThrowException()
+    {
+        $annotationDriver = $this->_loadDriver();
+        $classMetadata    = new ClassMetadata(WrongValueForValidationJsonSchema::class);
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('A JSON error occurred while parsing the "validationJsonSchema" property of the "Doctrine\ODM\MongoDB\Tests\Mapping\WrongValueForValidationJsonSchema" class');
+        $annotationDriver->loadMetadataForClass($classMetadata->name, $classMetadata);
+    }
+
+    public function testMissingJsonExtensionShouldThrowException()
+    {
+        $annotationDriver      = $this->_loadDriver();
+        $environmentHelperMock = $this->createMock(EnvironmentHelper::class);
+        $environmentHelperMock->expects($this->once())->method('isExtensionLoaded')->with('json');
+        $environmentHelperMock->method('isExtensionLoaded')->willReturn(false);
+        $annotationDriver->setEnvironmentHelper($environmentHelperMock);
+
+        $classMetadata = new ClassMetadata(JsonSchemaValidated::class);
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('"validationJsonSchema" property requires the "json" PHP extension: please update your PHP configuration.');
+        $annotationDriver->loadMetadataForClass($classMetadata->name, $classMetadata);
+    }
+
     protected function _loadDriverForCMSDocuments()
     {
         $annotationDriver = $this->_loadDriver();
@@ -249,13 +274,6 @@ class AnnotationDriverTest extends AbstractMappingDriverTest
         $reader = new AnnotationReader();
 
         return new AnnotationDriver($reader);
-    }
-
-    public function testWrongValueForValidationJsonSchemaShouldThrowException()
-    {
-        $this->expectException(MappingException::class);
-        $this->expectExceptionMessage('A JSON error occurred while parsing the "validationJsonSchema" property of the "Doctrine\ODM\MongoDB\Tests\Mapping\WrongValueForValidationJsonSchema" class');
-        $this->dm->getClassMetadata(WrongValueForValidationJsonSchema::class);
     }
 }
 

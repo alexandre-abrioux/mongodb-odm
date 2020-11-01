@@ -297,14 +297,14 @@ use function trigger_error;
      *
      * @var string
      */
-    public $validationAction = self::VALIDATION_ACTION_ERROR;
+    public $validationAction = '';
 
     /**
      * READ-ONLY: Determines how strictly MongoDB applies the validation rules to existing documents during an update.
      *
      * @var string
      */
-    public $validationLevel = self::VALIDATION_LEVEL_STRICT;
+    public $validationLevel = '';
 
     /**
      * READ-ONLY: The name of the document class.
@@ -2188,10 +2188,10 @@ use function trigger_error;
 
         if (is_array($this->validationJsonSchema)) {
                 $serialized[] = 'validationJsonSchema';
-            if ($this->validationAction !== self::VALIDATION_ACTION_ERROR) {
+            if ($this->validationAction !== '') {
                 $serialized[] = 'validationAction';
             }
-            if ($this->validationLevel !== self::VALIDATION_LEVEL_STRICT) {
+            if ($this->validationLevel !== '') {
                 $serialized[] = 'validationLevel';
             }
         }

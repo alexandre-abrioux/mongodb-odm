@@ -7,6 +7,7 @@ namespace Doctrine\ODM\MongoDB\Tests\Mapping\Driver;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Mapping\Driver\XmlDriver;
 use Doctrine\ODM\MongoDB\Mapping\MappingException;
+use Doctrine\ODM\MongoDB\Utility\EnvironmentHelper;
 use TestDocuments\AlsoLoadDocument;
 use TestDocuments\CustomIdGenerator;
 use TestDocuments\InvalidPartialFilterDocument;
@@ -110,6 +111,19 @@ class XmlDriverTest extends AbstractDriverTest
                 ],
             ],
         ], $classMetadata->getValidationJsonSchema());
+    }
+
+    public function testMissingJsonExtensionShouldThrowException()
+    {
+        $environmentHelperMock = $this->createMock(EnvironmentHelper::class);
+        $environmentHelperMock->expects($this->once())->method('isExtensionLoaded')->with('json');
+        $environmentHelperMock->method('isExtensionLoaded')->willReturn(false);
+        $this->driver->setEnvironmentHelper($environmentHelperMock);
+
+        $classMetadata = new ClassMetadata(JsonSchemaValidatedDocument::class);
+        $this->expectException(MappingException::class);
+        $this->expectExceptionMessage('"validation-json-schema" property requires the "json" PHP extension: please update your PHP configuration.');
+        $this->driver->loadMetadataForClass($classMetadata->name, $classMetadata);
     }
 }
 

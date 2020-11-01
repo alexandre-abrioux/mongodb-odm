@@ -17,6 +17,7 @@ use Doctrine\Common\Annotations\Annotation\Target;
 class ValidationLevel
 {
     /**
+     * @var string
      * @Enum({
      *     \Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_LEVEL_OFF,
      *     \Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_LEVEL_STRICT,
