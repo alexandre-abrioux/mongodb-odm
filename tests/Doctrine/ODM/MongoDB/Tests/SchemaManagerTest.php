@@ -1051,9 +1051,14 @@ class SchemaManagerTest extends BaseTest
     /** @return CursorInterface|MockObject */
     private function getMockCursor(array $return)
     {
-        $cursor = $this->createMock(CursorInterface::class);
+        // Cannot mock MongoDB\Driver\Cursor because the class is final,
+        // and cannot mock MongoDB\Driver\CursorInterface because the interface has been introduced in driver >= 1.6.0,
+        // so we build our own mock.
+        $cursor = $this->getMockBuilder('Cursor')
+            ->setMethods(['toArray'])
+            ->getMock();
         $cursor->method('toArray')->willReturnCallback(static function () use ($return) {
-                return $return;
+            return $return;
         });
 
         return $cursor;
