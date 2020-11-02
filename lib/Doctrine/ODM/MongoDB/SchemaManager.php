@@ -330,8 +330,8 @@ final class SchemaManager
     public function updateDocumentValidator(string $documentName, ?int $maxTimeMs = null, ?WriteConcern $writeConcern = null) : void
     {
         $dbVersion = $this->getDocumentDatabaseVersion($documentName, $maxTimeMs, $writeConcern);
-        if (version_compare($dbVersion, '3.2.0', '<')) {
-            // MongoDB cannot perform schema validation before version 3.2
+        if (version_compare($dbVersion, '3.6.0', '<')) {
+            // MongoDB cannot perform JSON schema validation before version 3.6
             return;
         }
 

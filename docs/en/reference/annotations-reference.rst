@@ -162,7 +162,27 @@ Optional attributes:
    ``writeConcern`` - Specifies the write concern for this document that
    overwrites the default write concern specified in the configuration. It does
    not overwrite a write concern given as :ref:`option <flush_options>` to the
-  ``flush``  method when committing your documents.
+   ``flush``  method when committing your documents.
+-
+   ``validationJsonSchema`` - Specifies a JSON schema that will be used by
+   MongoDB to validate data inserted or updated in the collection.
+   Please refer to the following
+   `MongoDB documentation <https://docs.mongodb.com/manual/core/schema-validation/#json-schema>`_
+   for more details. The value should be a string. Please note that double quotes ``"``
+   have to be escaped by doubling them ``""``, and that multiline strings can be used
+   but shouldn't be prefixed by the Docblock asterisk symbol ``*``.
+-
+   ``validationAction`` - Determines how MongoDB handles documents that violate
+   the validation rules. Please refer to the following
+   `MongoDB documentation <https://docs.mongodb.com/manual/core/schema-validation/#accept-or-reject-invalid-documents>`_
+   for more details. The value should be a `@ValidationAction`_ annotation.
+   If not defined then the MongoDB default ``validationAction`` behavior will be used.
+-
+   ``validationLevel`` - Determines which operations MongoDB applies the
+   validation rules. Please refer to the following
+   `MongoDB documentation <https://docs.mongodb.com/manual/core/schema-validation/#existing-documents>`_
+   for more details. The value should be a `@ValidationLevel`_ annotation.
+   If not defined then the MongoDB default ``validationLevel`` behavior will be used.
 
 .. code-block:: php
 
@@ -177,6 +197,17 @@ Optional attributes:
      *         @Index(keys={"username"="desc"}, options={"unique"=true})
      *     },
      *     readOnly=true,
+     *     validationJsonSchema="{
+                ""required"": [""name""],
+                ""properties"": {
+                    ""name"": {
+                        ""bsonType"": ""string"",
+                        ""description"": ""must be a string and is required""
+                    }
+                }
+            }",
+     *     validationAction=@ValidationAction(ClassMetadata::VALIDATION_ACTION_WARN),
+     *     validationLevel=@ValidationLevel(ClassMetadata::VALIDATION_LEVEL_MODERATE),
      * )
      */
     class User
@@ -1111,6 +1142,74 @@ encouraged to use the :ref:`atomicSet <atomic_set>` or
 :ref:`atomicSetArray <atomic_set_array>` strategies for such collections, which
 will ensure that collections are updated in the same write operation as the
 versioned parent document.
+
+@ValidationAction
+-----
+
+Enumeration type annotation required to specify the desired ``validationAction`` of the `@Document`_ annotation. The allowed values are the following:
+
+- ``error``
+- ``warn``
+
+Those values are also declared as constants for convenience:
+
+- ``\Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_ACTION_ERROR``
+- ``\Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_ACTION_WARN``
+
+Just import the ``ClassMetadata`` namespace to use those constants in your annotation.
+
+.. code-block:: php
+
+    <?php
+
+    use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
+    // ... other imports
+
+    /**
+     * @Document(
+     *     validationJsonSchema="{ ... JSON schema ... }",
+     *     validationLevel=@ValidationLevel(ClassMetadata::VALIDATION_LEVEL_MODERATE),
+     * )
+     */
+    class JsonSchemaValidated
+    {
+        //...
+    }
+
+@ValidationLevel
+-----
+
+Enumeration type annotation required to specify the desired ``validationLevel`` of the `@Document`_ annotation. The allowed values are the following:
+
+- ``off``
+- ``strict``
+- ``moderate``
+
+Those values are also declared as constants for convenience:
+
+- ``\Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_LEVEL_OFF``
+- ``\Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_LEVEL_STRICT``
+- ``\Doctrine\ODM\MongoDB\Mapping\ClassMetadata::VALIDATION_LEVEL_MODERATE``
+
+Just import the ``ClassMetadata`` namespace to use those constants in your annotation.
+
+.. code-block:: php
+
+    <?php
+
+    use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
+    // ... other imports
+
+    /**
+     * @Document(
+     *     validationJsonSchema="{ ... JSON schema ... }",
+     *     validationLevel=@ValidationLevel(ClassMetadata::VALIDATION_LEVEL_MODERATE),
+     * )
+     */
+    class JsonSchemaValidated
+    {
+        //...
+    }
 
 @View
 -----

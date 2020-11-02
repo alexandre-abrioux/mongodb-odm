@@ -13,7 +13,7 @@ class ValidationTest extends BaseTest
 {
     public function testCreateUpdateValidatedDocument()
     {
-        $this->requireVersion($this->getServerVersion(), '3.2.0', '<', 'MongoDB cannot perform schema validation before version 3.2');
+        $this->requireVersion($this->getServerVersion(), '3.6.0', '<', 'MongoDB cannot perform JSON schema validation before version 3.6');
 
         // Test creation of JsonSchemaValidated collection
         $cm = $this->dm->getClassMetadata(JsonSchemaValidated::class);

@@ -1,6 +1,9 @@
 Validation of Documents
 =======================
 
+Validation of Documents - Application Side
+------------------------------------------
+
 .. sectionauthor:: Benjamin Eberlei <kontakt@beberlei.de>
 
 Doctrine does not ship with any internal validators, the reason
@@ -128,3 +131,101 @@ the Versionable extension, which requires another type of event
 called "onFlush".
 
 Further readings: :doc:`Lifecycle Events <../reference/events>`
+
+Validation of Documents - Database Side
+---------------------------------------
+
+.. sectionauthor:: Alexandre Abrioux <alexandre-abrioux@users.noreply.github.com>
+
+.. note::
+
+    This feature has been introduced in version 2.2.0
+
+MongoDB ≥ 3.6 offers the capability to validate documents during
+insertions and updates through a JSON schema associated to the collection
+(cf. `MongoDB documentation <https://docs.mongodb.com/manual/core/schema-validation/#json-schema>`_).
+
+Doctrine now provides a way to take advantage of this functionality
+with three new options to the :doc:`@Document <../reference/annotations-reference#document>`
+annotation (also available with XML mapping):
+
+-
+  ``validationJsonSchema`` - The JSON Schema that will be used against documents
+  for validation.
+-
+  ``validationAction`` - The behavior followed by MongoDB to handle documents that
+  violate the validation rules.
+-
+  ``validationLevel`` - The threshold used by MongoDB to filter operations that
+  will get validated.
+
+Once defined those options will be added to the collection after running
+the ``odm:schema:create`` or ``odm:schema:update`` command.
+
+.. configuration-block::
+
+    .. code-block:: php
+
+        <?php
+
+        namespace Documents;
+
+        use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
+        use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
+
+        /**
+         * @ODM\Document(
+         *     validationJsonSchema="{
+                    ""required"": [""name""],
+                    ""properties"": {
+                        ""name"": {
+                            ""bsonType"": ""string"",
+                            ""description"": ""must be a string and is required""
+                        }
+                    }
+                }",
+         *     validationAction=@ODM\ValidationAction(ClassMetadata::VALIDATION_ACTION_WARN),
+         *     validationLevel=@ODM\ValidationLevel(ClassMetadata::VALIDATION_LEVEL_MODERATE),
+         * )
+         */
+        class JsonSchemaValidated
+        {
+            /** @ODM\Id */
+            private $id;
+
+            /** @ODM\Field(type="string") */
+            private $name;
+        }
+
+    .. code-block:: xml
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <doctrine-mongo-mapping xmlns="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xsi:schemaLocation="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping
+                          http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping.xsd">
+
+            <document
+                    name="TestDocuments\JsonSchemaValidatedDocument"
+                    validation-action="warn"
+                    validation-level="moderate"
+            >
+                <validation-json-schema>
+                    {
+                        "required": ["name"],
+                        "properties": {
+                            "name": {
+                                "bsonType": "string",
+                                "description": "must be a string and is required"
+                            }
+                        }
+                    }
+                </validation-json-schema>
+            </document>
+        </doctrine-mongo-mapping>
+
+Please refer to the following documentation for more details on how to use those annotations:
+
+- :doc:`@Document <../reference/annotations-reference#document>`
+- :doc:`@ValidationAction <../reference/annotations-reference#validationaction>`
+- :doc:`@ValidationLevel <../reference/annotations-reference#validationlevel>`
