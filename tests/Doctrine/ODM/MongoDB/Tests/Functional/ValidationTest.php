@@ -34,11 +34,16 @@ class ValidationTest extends BaseTest
             'validationAction' => ClassMetadata::VALIDATION_ACTION_WARN,
         ];
         $collections     = $this->dm->getDocumentDatabase($cm->name)->listCollections();
+        $assertNb        = 0;
         foreach ($collections as $key => $collection) {
-            $this->assertEquals(0, $key);
-            $this->assertEquals($cm->getCollection(), $collection->getName());
+            if ($collection->getName() !== $cm->getCollection()) {
+                continue;
+            }
+
+            $assertNb++;
             $this->assertEquals($expectedOptions, $collection->getOptions());
         }
+        $this->assertEquals(1, $assertNb);
 
         // Test updating the same collection, this time removing the validators and resetting to default options
         $cmUpdated = $this->dm->getClassMetadata(JsonSchemaValidatedUpdate::class);
@@ -50,11 +55,16 @@ class ValidationTest extends BaseTest
             'validationAction' => ClassMetadata::VALIDATION_ACTION_ERROR,
         ];
         $collections     = $this->dm->getDocumentDatabase($cmUpdated->name)->listCollections();
+        $assertNb        = 0;
         foreach ($collections as $key => $collection) {
-            $this->assertEquals(0, $key);
-            $this->assertEquals($cm->getCollection(), $collection->getName());
+            if ($collection->getName() !== $cm->getCollection()) {
+                continue;
+            }
+
+            $assertNb++;
             $this->assertEquals($expectedOptions, $collection->getOptions());
         }
+        $this->assertEquals(1, $assertNb);
     }
 }
 
